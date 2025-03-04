@@ -39,8 +39,8 @@ class Function_screen_ extends State<Function_screen>{
   var bgminus =  Colors.grey;
   var bgtimes =  Colors.grey;
   var bgdivide =  Colors.grey;
-  var number1 = Random().nextInt(20);
-  var number2 = Random().nextInt(20);
+  var number1 = Random().nextInt(1000);
+  var number2 = Random().nextInt(1000);
   var symbol = '+';
   var colors_quest = Colors.amber;
 
@@ -54,30 +54,44 @@ class Function_screen_ extends State<Function_screen>{
     bgdivide = Colors.grey;
     bgtimes = Colors.grey;
     answer = '';
-    number1 = Random().nextInt(20);
-    number2 = Random().nextInt(20);
+    create_max_num();
   });
+ }
+
+ void create_max_num() {
+   int max_num = 5;
+   if (symbol == '+' || symbol == '-'){
+     max_num = 1000;
+   }
+   else if(symbol == '*'){
+     max_num = 20;
+   }
+   else if(symbol == '/'){
+     max_num = 500;
+   }
+   number1 = Random().nextInt(max_num);
+   number2 = Random().nextInt(max_num);
  } 
 
 void clickMinus(){
   setState(() {
+    symbol = '-';
     setDefualtValue();
     bgminus = Colors.green;
-    symbol = '-';
   });
 }
 void clicktimes(){
   setState(() {
+    symbol = '*';    
     setDefualtValue();
     bgtimes = Colors.green;
-    symbol = '*';
   });
 }
 void clickdivide(){
   setState(() {
+    symbol = '/';
     setDefualtValue();
     bgdivide = Colors.green;
-    symbol = '/';
     if(number1 < number2){
       var x = number1;
       number1 = number2;
@@ -92,9 +106,9 @@ void clickdivide(){
 }
 void clickPlus(){
   setState(() {
-    setDefualtValue();
-    bgplus = Colors.green;
     symbol = '+';
+    setDefualtValue();    
+    bgplus = Colors.green;
   });
 }
 
@@ -181,8 +195,7 @@ Future.delayed(Duration(milliseconds: 1000),
 
 void createNextQuest(){
   setState(() {
-    number1 = Random().nextInt(20);
-    number2 = Random().nextInt(20);
+    create_max_num();
     answer = '';
     if(symbol == '/'){
       if(number1 < number2){
