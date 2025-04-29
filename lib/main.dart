@@ -1,3 +1,6 @@
+// ignore_for_file: non_constant_identifier_names
+
+import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 
@@ -24,22 +27,189 @@ class FirstPage extends StatefulWidget{
     return _FirstPage();
   }
 }
+int time = 20;
 
 class _FirstPage extends State<FirstPage>{
+
+  var level = 'easy';
+  var bgeasy = const Color.fromARGB(255, 48, 190, 52);
+  var bgmedium = Colors.grey;
+  var bghard = Colors.grey;
+  var bgplus = Colors.yellow;
+  var bgminus = Colors.yellow;
+  var bgtimes = Colors.yellow;
+  var bgdivide = Colors.yellow;
+  var description = 'the quizes wil be use +, -, *, /';
+  var correct_data = true; 
+  var color_data = Colors.black;
+  var description_time = 'For every quiz will be given $time seconds';
+
+  void start(){
+    if (correct_data == false){
+      setState(() {
+        color_data = const Color.fromARGB(255, 199, 28, 16);
+
+      });  
+    }
+    else{
+      List<String>new_symbols = [];
+      if(bgplus == Colors.yellow){
+        new_symbols.add('+');
+      }
+      if(bgminus == Colors.yellow){
+        new_symbols.add('-');
+      }
+      if(bgtimes == Colors.yellow){
+        new_symbols.add('*');
+      }
+      if(bgdivide == Colors.yellow){
+        new_symbols.add('/');
+      }
+      Navigator.push(
+      context, 
+      MaterialPageRoute(
+        builder: (context)=>Function_screen(level, new_symbols)
+      )
+      );
+   
+    }
+  }
+  
+  void all_functions (String symbol, MaterialColor current_color){
+    var color =  current_color == Colors.yellow ? Colors.grey : Colors.yellow;
+    setState(() {
+      color_data = Colors.black;
+      if (symbol == '+'){
+      bgplus = color;
+    }
+    else if (symbol == '-'){
+      bgminus = color;
+    }
+    else if (symbol == '*'){
+      bgtimes = color;
+    }
+    else if (symbol == '/'){
+      bgdivide = color;
+    }
+
+    
+    description = 'the quizes will be use ';
+    if (bgplus == Colors.yellow){
+      description += '+, ';
+    }
+    if (bgminus == Colors.yellow){
+      description += '-, ';
+    }
+    if (bgtimes == Colors.yellow){
+      description += '*, ';
+    }
+    if (bgdivide == Colors.yellow){
+      description += '/, ';
+    }
+    description = description.substring(0, description.length - 2);
+    if (bgplus == Colors.grey && bgminus == Colors.grey && bgtimes == Colors.grey && bgdivide == Colors.grey){
+      description = 'choose minimum 1 item';
+      correct_data = false; 
+    }
+    else{
+      correct_data = true;
+    }
+
+        }
+
+    );
+    
+  }
+
+
+  void change_level(String new_level){
+    level = new_level;
+    setState(() {
+      bgeasy = Colors.grey;
+      bgmedium = Colors.grey;
+      bghard = Colors.grey;
+      if (level == 'easy'){
+        bgeasy = const Color.fromARGB(255, 48, 190, 52);
+        time = 20;
+      }
+      else if (level == 'medium'){
+        bgmedium = Colors.orange;
+        time = 15;
+      }
+      else if(level == 'hard'){
+        bghard = Colors.red;
+        time = 10;
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold();
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('knowledge', style: TextStyle(backgroundColor: const Color.fromARGB(255, 16, 102, 200)),),
+        backgroundColor: Color.fromARGB(255, 16, 102, 200),
+      ),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [ ElevatedButton(onPressed: ()=>change_level('easy'), child: Text('easy'),style: ElevatedButton.styleFrom(backgroundColor: bgeasy),),],
+          ),
+         
+          ElevatedButton(onPressed: ()=>change_level('medium'), child: Text('medium'),style: ElevatedButton.styleFrom(backgroundColor: bgmedium),),
+          ElevatedButton(onPressed: ()=>change_level('hard'), child: Text('hard'),style: ElevatedButton.styleFrom(backgroundColor: bghard)),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+            ElevatedButton(onPressed: ()=>all_functions('+', bgplus), style: ElevatedButton.styleFrom(backgroundColor: bgplus),
+              child: Text('+', style: TextStyle(fontSize: 25),),),
+              ElevatedButton(onPressed: ()=>all_functions('-', bgminus), style: ElevatedButton.styleFrom(backgroundColor: bgminus),
+              child: Text('-', style: TextStyle(fontSize: 25),)),
+              ElevatedButton(onPressed: ()=>all_functions('*', bgtimes), style: ElevatedButton.styleFrom(backgroundColor: bgtimes),
+              child: Text('*', style: TextStyle(fontSize: 25),)),
+              ElevatedButton(onPressed: ()=>all_functions('/', bgdivide), style: ElevatedButton.styleFrom(backgroundColor: bgdivide),
+              child: Text('/', style: TextStyle(fontSize: 25),)),
+          ],),
+          ElevatedButton(onPressed:start, child: Text('start')),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Column(children: [
+                Text(
+                  'For every quiz will be given $time seconds',
+                  style: TextStyle(color: color_data ),
+                  ),
+                Text(
+                  description, 
+                  style: TextStyle(color: color_data),
+                  )
+            ],)
+          ],)
+        ],
+      ),
+    );
   }
 }
 
 class Function_screen extends StatefulWidget{
+  var lvl = 'easy';
+  List<String> Symbols = [];
+
+  Function_screen(String level, List<String> new_symbols){
+    lvl = level;
+    Symbols = new_symbols;
+  }
   @override
   _Function_screen createState() {
-    return _Function_screen();
+    return _Function_screen(lvl, Symbols);
   }
 }
 
 class _Function_screen extends State<Function_screen>{
+  var seconds = 20;
+  var all_seconds = 20;
   String answer = 'Your answer';
   var bgplus = Colors.green;
   var bgminus =  Colors.grey;
@@ -48,8 +218,50 @@ class _Function_screen extends State<Function_screen>{
   var number1 = Random().nextInt(1000);
   var number2 = Random().nextInt(1000);
   var symbol = '+';
+  var symbols = [];
   var colors_quest = Colors.amber;
+  late Timer timerquist;
 
+_Function_screen(String level, List<String> ss){
+  if(level == 'easy'){
+    seconds = 30;
+  }
+  else if(level == 'medium'){
+    seconds = 25;
+  }
+  else if(level == 'hard'){
+    seconds = 20;
+  }
+  else{
+    print('Unknow level $level');
+  }
+  all_seconds = seconds;
+  symbols = ss;
+  print(symbols);
+}
+
+void start_timer(){
+  timerquist = Timer.periodic(Duration(seconds: 1),(timer){
+    setState(() {
+      if(seconds < 1){
+        seconds = all_seconds;
+        createNextQuest();
+      }
+      else{
+        seconds--;
+      }
+      
+    });
+  });
+}
+
+
+@override
+void initState(){
+  super.initState();
+  start_timer();
+
+}
 
 
 
@@ -191,6 +403,7 @@ Future.delayed(Duration(milliseconds: 1000),
   setState(() {
     colors_quest = Colors.amber;
     createNextQuest();
+    seconds = all_seconds;
   });
 }
 );
@@ -240,6 +453,12 @@ void createNextQuest(){
               child: Text('/', style: TextStyle(fontSize: 25),)),
             ],
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text('$seconds', style: TextStyle(fontSize: 25),)
+            ],
           ),
           Row(
             children: [
