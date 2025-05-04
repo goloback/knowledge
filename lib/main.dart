@@ -211,16 +211,23 @@ class _Function_screen extends State<Function_screen>{
   var seconds = 20;
   var all_seconds = 20;
   String answer = 'Your answer';
-  var bgplus = Colors.green;
+  var bgplus = Colors.grey;
   var bgminus =  Colors.grey;
   var bgtimes =  Colors.grey;
   var bgdivide =  Colors.grey;
+  double default_w = 60;
+  double selecte_w = 110;
   var number1 = Random().nextInt(1000);
   var number2 = Random().nextInt(1000);
   var symbol = '+';
   var symbols = [];
   var colors_quest = Colors.amber;
   late Timer timerquist;
+  double wp = 60;
+  double wm = 60;
+  double wt = 60;
+  double wd = 60;
+  
 
 _Function_screen(String level, List<String> ss){
   if(level == 'easy'){
@@ -237,7 +244,10 @@ _Function_screen(String level, List<String> ss){
   }
   all_seconds = seconds;
   symbols = ss;
-  print(symbols);
+
+  applybackground();
+  create_max_num();
+  extra_set();
 }
 
 void start_timer(){
@@ -245,7 +255,13 @@ void start_timer(){
     setState(() {
       if(seconds < 1){
         seconds = all_seconds;
-        createNextQuest();
+        colors_quest = Colors.red;
+        Future.delayed(Duration(milliseconds: 1000), 
+        (){
+            colors_quest = Colors.amber;
+            createNextQuest();
+            seconds = all_seconds;
+          });
       }
       else{
         seconds--;
@@ -414,21 +430,64 @@ Future.delayed(Duration(milliseconds: 1000),
 
 void createNextQuest(){
   setState(() {
+    applybackground();
+
     create_max_num();
-    answer = '';
-    if(symbol == '/'){
-      if(number1 < number2){
-      var x = number1;
-      number1 = number2;
-      number2 = x;
-    }
-    if(number1 % number2 != 0){
-      while(number1 % number2 != 0){
-        number2--;
-      }
-    }
-    }
+    extra_set();
   });
+}
+
+void extra_set() {
+  answer = '';
+  if(symbol == '/'){
+    if(number1 < number2){
+    var x = number1;
+    number1 = number2;
+    number2 = x;
+  }
+  if(number1 % number2 != 0){
+    while(number1 % number2 != 0){
+      number2--;
+    }
+  }
+  }
+}
+
+void applybackground() {
+  symbol = symbols[Random().nextInt(symbols.length)];
+  bgplus = Colors.grey;
+  bgminus = Colors.grey;
+  bgtimes = Colors.grey;
+  bgdivide = Colors.grey;
+  wp = default_w;
+  wm  =default_w;
+  wt  =default_w;
+  wd  =default_w;
+  if (symbol == '+'){
+    bgplus = Colors.green;
+    wp = selecte_w;
+  }
+  if (symbol == '-'){
+    bgminus = Colors.green;
+    wm = selecte_w;
+  }
+  if (symbol == '*'){
+    bgtimes = Colors.green;
+    wt = selecte_w;
+  }
+  if (symbol == '/'){
+    bgdivide = Colors.green;
+    wd = selecte_w;
+  }
+}
+
+bool get_symbol(String symbol){
+  for (int i = 0; i < symbols.length; i++){
+    if (symbols[i] == symbol){
+      return true;
+    }
+  }
+  return false;
 }
 
   @override
@@ -443,13 +502,17 @@ void createNextQuest(){
         children: [
           Row(
             children: [
-              ElevatedButton(onPressed: clickPlus, style: ElevatedButton.styleFrom(backgroundColor: bgplus),
-              child: Text('+', style: TextStyle(fontSize: 25),),),
-              ElevatedButton(onPressed: clickMinus, style: ElevatedButton.styleFrom(backgroundColor: bgminus),
+              if (get_symbol('+') == true)
+                ElevatedButton(onPressed: (){}, style: ElevatedButton.styleFrom(backgroundColor: bgplus, minimumSize: Size(wp, 50)), 
+                child: Text('+', style: TextStyle(fontSize: 25),),),
+              if (get_symbol('-') == true)
+              ElevatedButton(onPressed: (){}, style: ElevatedButton.styleFrom(backgroundColor: bgminus, minimumSize: Size(wm, 50)),
               child: Text('-', style: TextStyle(fontSize: 25),)),
-              ElevatedButton(onPressed: clicktimes, style: ElevatedButton.styleFrom(backgroundColor: bgtimes),
+              if (get_symbol('*') == true)
+              ElevatedButton(onPressed: (){}, style: ElevatedButton.styleFrom(backgroundColor: bgtimes, minimumSize: Size(wt, 50)),
               child: Text('*', style: TextStyle(fontSize: 25),)),
-              ElevatedButton(onPressed: clickdivide, style: ElevatedButton.styleFrom(backgroundColor: bgdivide),
+              if (get_symbol('/') == true)
+              ElevatedButton(onPressed: (){}, style: ElevatedButton.styleFrom(backgroundColor: bgdivide, minimumSize: Size(wd, 50)),
               child: Text('/', style: TextStyle(fontSize: 25),)),
             ],
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
