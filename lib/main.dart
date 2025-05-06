@@ -38,11 +38,16 @@ class _FirstPage extends State<FirstPage>{
   var bgplus = Colors.yellow;
   var bgminus = Colors.yellow;
   var bgtimes = Colors.yellow;
-  var bgdivide = Colors.yellow;
-  var description = 'the quizes wil be use +, -, *, /';
+  var bgdivide = Colors.yellow; 
+   var num_tasks_ = 5;
+  var description = '5 tasks wil be use +, -, *, /';
   var correct_data = true; 
   var color_data = Colors.black;
   var description_time = 'For every quiz will be given $time seconds';
+  var bg5 = Colors.green;
+  var bg10 = Colors.grey;
+  var bg20 = Colors.grey;
+
 
   void start(){
     if (correct_data == false){
@@ -68,7 +73,7 @@ class _FirstPage extends State<FirstPage>{
       Navigator.push(
       context, 
       MaterialPageRoute(
-        builder: (context)=>Function_screen(level, new_symbols)
+        builder: (context)=>Function_screen(level, new_symbols, num_tasks_)
       )
       );
    
@@ -93,7 +98,16 @@ class _FirstPage extends State<FirstPage>{
     }
 
     
-    description = 'the quizes will be use ';
+    update_description();
+
+        }
+
+    );
+    
+  }
+
+  void update_description() {
+    description = '$num_tasks_ tasks will be use ';
     if (bgplus == Colors.yellow){
       description += '+, ';
     }
@@ -114,11 +128,6 @@ class _FirstPage extends State<FirstPage>{
     else{
       correct_data = true;
     }
-
-        }
-
-    );
-    
   }
 
 
@@ -143,6 +152,25 @@ class _FirstPage extends State<FirstPage>{
     });
   }
 
+  void set_num_tasks(int num_tasks){
+    setState(() {
+      bg5 = Colors.grey;
+      bg10 = Colors.grey;
+      bg20 = Colors.grey;
+      if(num_tasks == 5){
+        bg5 = Colors.green;
+      }
+      else if(num_tasks == 10){
+        bg10 = Colors.orange;
+      }
+      else if(num_tasks == 20){
+        bg20 = Colors.red;
+      }
+      num_tasks_ = num_tasks;
+    });
+    update_description();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -160,6 +188,14 @@ class _FirstPage extends State<FirstPage>{
          
           ElevatedButton(onPressed: ()=>change_level('medium'), child: Text('medium'),style: ElevatedButton.styleFrom(backgroundColor: bgmedium),),
           ElevatedButton(onPressed: ()=>change_level('hard'), child: Text('hard'),style: ElevatedButton.styleFrom(backgroundColor: bghard)),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              ElevatedButton(onPressed: ()=>set_num_tasks(5), child: Text('5 tasks', style: TextStyle(fontSize: 20),), style: ElevatedButton.styleFrom(backgroundColor: bg5)),
+              ElevatedButton(onPressed: ()=>set_num_tasks(10), child: Text('10 tasks', style: TextStyle(fontSize: 20),), style: ElevatedButton.styleFrom(backgroundColor: bg10)),
+              ElevatedButton(onPressed: ()=>set_num_tasks(20), child: Text('20 tasks', style: TextStyle(fontSize: 20),), style: ElevatedButton.styleFrom(backgroundColor: bg20))
+            ],
+          ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
@@ -196,14 +232,16 @@ class _FirstPage extends State<FirstPage>{
 class Function_screen extends StatefulWidget{
   var lvl = 'easy';
   List<String> Symbols = [];
+  var tasks = 5;
 
-  Function_screen(String level, List<String> new_symbols){
+  Function_screen(String level, List<String> new_symbols, int num_tasks_){
     lvl = level;
     Symbols = new_symbols;
+    tasks = num_tasks_;
   }
   @override
   _Function_screen createState() {
-    return _Function_screen(lvl, Symbols);
+    return _Function_screen(lvl, Symbols, tasks);
   }
 }
 
@@ -227,17 +265,20 @@ class _Function_screen extends State<Function_screen>{
   double wm = 60;
   double wt = 60;
   double wd = 60;
+  var tasks = 5;
+  var current_task  = 1; 
   
 
-_Function_screen(String level, List<String> ss){
+_Function_screen(String level, List<String> ss, int new_tasks){
+tasks = new_tasks;
   if(level == 'easy'){
-    seconds = 30;
+    seconds = 20;
   }
   else if(level == 'medium'){
-    seconds = 25;
+    seconds = 15;
   }
   else if(level == 'hard'){
-    seconds = 20;
+    seconds = 10;
   }
   else{
     print('Unknow level $level');
@@ -256,6 +297,7 @@ void start_timer(){
       if(seconds < 1){
         seconds = all_seconds;
         colors_quest = Colors.red;
+        answer = '${get_correct_answer()}';
         Future.delayed(Duration(milliseconds: 1000), 
         (){
             colors_quest = Colors.amber;
@@ -271,15 +313,12 @@ void start_timer(){
   });
 }
 
-
 @override
 void initState(){
   super.initState();
   start_timer();
 
 }
-
-
 
  void setDefualtValue(){
   setState(() {
@@ -346,8 +385,6 @@ void clickPlus(){
   });
 }
 
-
-
 void clickNumber(String number){
   setState(() {
     if(answer == 'Your answer'){
@@ -360,6 +397,7 @@ void clickNumber(String number){
   );
   checkResult();
 }
+
 void deleteNumber(){
   setState(() {
     if(answer.length == 0){
@@ -374,6 +412,7 @@ void deleteNumber(){
   });
   checkResult();
 }
+
 void changePlusMinus(){
   setState(() {
     if(answer == 'Your answer' || answer.length == 0){
@@ -395,19 +434,7 @@ void mode(String symbol){
 }
 
 void checkResult(){
-var correctAnswer = 1000000;
-if(symbol == '+'){
-  correctAnswer = number1 + number2;
-}
-else if(symbol == '-'){
-  correctAnswer = number1 - number2;
-}
-else if(symbol == '/'){
-  correctAnswer =(number1 / number2).floor();
-}
-else if(symbol == '*'){
-  correctAnswer = number1 * number2;
-}
+var correctAnswer = get_correct_answer();
 
 if(correctAnswer == int.parse(answer)){
   setState(() {
@@ -426,6 +453,24 @@ Future.delayed(Duration(milliseconds: 1000),
 
 }
 
+}
+
+int get_correct_answer() {
+  var correctAnswer = 1;
+  if(symbol == '+'){
+    correctAnswer = number1 + number2;
+  }
+  else if(symbol == '-'){
+    correctAnswer = number1 - number2;
+  }
+  else if(symbol == '/'){
+    correctAnswer =(number1 / number2).floor();
+  }
+  else if(symbol == '*'){
+    correctAnswer = number1 * number2;
+  }
+  print(correctAnswer);
+  return correctAnswer;
 }
 
 void createNextQuest(){
@@ -521,6 +566,11 @@ bool get_symbol(String symbol){
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text('$seconds', style: TextStyle(fontSize: 25),)
+            ],
+          ),
+          Row(
+            children: [
+              Text('$current_task/$tasks')
             ],
           ),
           Row(
