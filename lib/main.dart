@@ -267,6 +267,10 @@ class _Function_screen extends State<Function_screen>{
   double wd = 60;
   var tasks = 5;
   var current_task  = 1; 
+  var is_result = false;
+  var correct_answer = 0;
+  var incorrect_answer = 0;
+  var active = true;
   
 
 _Function_screen(String level, List<String> ss, int new_tasks){
@@ -294,16 +298,21 @@ tasks = new_tasks;
 void start_timer(){
   timerquist = Timer.periodic(Duration(seconds: 1),(timer){
     setState(() {
-      if(seconds < 1){
-        seconds = all_seconds;
+      if(seconds < 2){
+        //seconds = all_seconds;
         colors_quest = Colors.red;
+        incorrect_answer++;
         answer = '${get_correct_answer()}';
+        active = false;
         Future.delayed(Duration(milliseconds: 1000), 
         (){
             colors_quest = Colors.amber;
             createNextQuest();
             seconds = all_seconds;
-          });
+            current_task++;
+            active = true;
+          }
+        );
       }
       else{
         seconds--;
@@ -353,6 +362,7 @@ void clickMinus(){
     bgminus = Colors.green;
   });
 }
+
 void clicktimes(){
   setState(() {
     symbol = '*';    
@@ -360,7 +370,9 @@ void clicktimes(){
     bgtimes = Colors.green;
   });
 }
+
 void clickdivide(){
+
   setState(() {
     symbol = '/';
     setDefualtValue();
@@ -377,6 +389,7 @@ void clickdivide(){
     }
   });
 }
+
 void clickPlus(){
   setState(() {
     symbol = '+';
@@ -386,6 +399,9 @@ void clickPlus(){
 }
 
 void clickNumber(String number){
+  if(active == false){
+    return;
+  }
   setState(() {
     if(answer == 'Your answer'){
     answer = number;
@@ -434,24 +450,26 @@ void mode(String symbol){
 }
 
 void checkResult(){
-var correctAnswer = get_correct_answer();
+  var correctAnswer = get_correct_answer();
 
-if(correctAnswer == int.parse(answer)){
-  setState(() {
-    colors_quest = Colors.green;
-  });
+  if(correctAnswer == int.parse(answer)){
+    setState(() {
+      colors_quest = Colors.green;
+      correct_answer++;
+    });
 
-Future.delayed(Duration(milliseconds: 1000), 
-(){
-  setState(() {
-    colors_quest = Colors.amber;
-    createNextQuest();
-    seconds = all_seconds;
-  });
-}
-);
+  Future.delayed(Duration(milliseconds: 1000), 
+  (){
+    setState(() {
+      colors_quest = Colors.amber;
+      createNextQuest();
+      seconds = all_seconds;
+      current_task++;
+    });
+  }
+  );
 
-}
+  }
 
 }
 
@@ -475,8 +493,12 @@ int get_correct_answer() {
 
 void createNextQuest(){
   setState(() {
+    if(current_task == tasks){
+      is_result = true;
+      timerquist.cancel();
+      return;
+    }
     applybackground();
-
     create_max_num();
     extra_set();
   });
@@ -545,6 +567,22 @@ bool get_symbol(String symbol){
         body:  Column(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
+          if(is_result == true)
+          Row(
+            children: [
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text('$tasks tasks', style: TextStyle(fontSize: 30),), 
+                  Text('correct answers: $correct_answer', style: TextStyle(fontSize: 30, color: Colors.green),),
+                  Text('incorrect answers: $incorrect_answer', style: TextStyle(fontSize: 30, color: Colors.red),),
+                    ],
+              )
+         
+              ],
+          ),
+          if(is_result == false)
+
           Row(
             children: [
               if (get_symbol('+') == true)
@@ -562,17 +600,30 @@ bool get_symbol(String symbol){
             ],
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           ),
+          
+          if(is_result == false)
+          
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text('$seconds', style: TextStyle(fontSize: 25),)
             ],
           ),
+          
+          if(is_result == false)
+
           Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text('$current_task/$tasks')
+              Text(
+                '$current_task/$tasks', 
+                style: TextStyle(fontSize: 30),
+                )
             ],
           ),
+          
+          if(is_result == false)
+
           Row(
             children: [
               Container(
@@ -587,6 +638,9 @@ bool get_symbol(String symbol){
             mainAxisAlignment: MainAxisAlignment.center,
             
           ),
+          
+          if(is_result == false)
+
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -597,6 +651,8 @@ bool get_symbol(String symbol){
                 ),)
           ],
           ),
+
+          if(is_result == false)
 
           Column(
             children: [
@@ -638,10 +694,10 @@ bool get_symbol(String symbol){
                 ), 
             ],
         )
-
-      
+        
         ],
         ),
+        
       );
   }
 }
